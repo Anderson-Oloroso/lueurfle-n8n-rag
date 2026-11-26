@@ -1,0 +1,203 @@
+{
+  "name": "LueurFLE - Webhook Ingest PDFs to Qdrant",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ingest-pdf",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -380,
+        0
+      ],
+      "id": "9f2a1d11-125e-4e43-8a6b-2c44a1fd8b01",
+      "name": "Webhook Ingest PDF",
+      "webhookId": "lueurfle-ingest-pdf"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "lueurfle_french_3072",
+          "mode": "list",
+          "cachedResultName": "lueurfle_french_3072"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.4,
+      "position": [
+        -100,
+        0
+      ],
+      "id": "3c7b4a02-71c8-4c18-9d21-6f3b0c41e102",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "QDRANT_CREDENTIAL_ID",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        200
+      ],
+      "id": "0a712c93-4e05-419c-a2d8-8f91e78d5603",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "GEMINI_CREDENTIAL_ID",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "binaryDataPropertyName": "file",
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "level",
+                "value": "={{ $('Webhook Ingest PDF').item.json.body?.levelTag ?? 'general' }}"
+              },
+              {
+                "name": "source",
+                "value": "={{ $('Webhook Ingest PDF').item.json.body?.originalName ?? 'docs.pdf' }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        40,
+        200
+      ],
+      "id": "4e147f94-90b3-4041-91f2-18264e3e3704",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkSize": 1000,
+        "chunkOverlap": 150,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        40,
+        380
+      ],
+      "id": "83b6ad05-2bb4-49d0-8fa8-731e75b4d105",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, collection: 'lueurfle_french_3072', status: 'indexed', documentId: $('Webhook Ingest PDF').item.json.body?.documentId ?? null } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        0
+      ],
+      "id": "e105f7d6-6cd2-49e5-8e9b-5c78f24d1306",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Ingest PDF": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8f29e041-29a6-472c-841e-d0f62d50f111",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "nodeGroups": [],
+  "id": "lueurWebhookIngestPdfQdrant",
+  "tags": [
+    "lueurfle",
+    "qdrant",
+    "pdf-ingest",
+    "webhook"
+  ]
+}
