@@ -4,13 +4,13 @@
 
 ---
 
-## 🎯 Objetivo
+## Objetivo
 
-Orquestar la ingesta de material didáctico en PDF (`docs.pdf` → embeddings `gemini-embedding-001` de 3072 dimensiones → Qdrant) y la atención conversacional fundamentada en RAG mediante **n8n** y **Docker Compose**.
+Orquestar la ingesta de material didáctico en PDF (`docs.pdf` -> embeddings `gemini-embedding-001` de 3072 dimensiones -> Qdrant) y la atención conversacional fundamentada en RAG mediante **n8n** y **Docker Compose**.
 
 ---
 
-## 🛠️ Tecnologías
+## Tecnologías
 
 - **n8n** (`n8nio/n8n:latest`) con LangChain AI Agent, Window Buffer Memory y Qdrant Vector Store
 - **Qdrant** (`@qdrant/js-client-rest` + perfil local `qdrant/qdrant:latest` o Qdrant Cloud)
@@ -20,7 +20,7 @@ Orquestar la ingesta de material didáctico en PDF (`docs.pdf` → embeddings `g
 
 ---
 
-## 📂 Árbol de Directorios
+## Árbol de Directorios
 
 ```text
 lueurfle-n8n-rag/
@@ -44,7 +44,7 @@ lueurfle-n8n-rag/
 
 ---
 
-## 🚀 Cómo Ejecutarlo
+## Cómo Ejecutarlo
 
 ### 1. Configurar variables de entorno
 ```bash
@@ -76,7 +76,7 @@ npm test
 
 ---
 
-## 👤 Autoría
+## Autoría
 
 - **Autor:** Henrik Anderson Oloroso García (`Anderson-Oloroso`)
 - **Licencia:** [MIT](./LICENSE)
