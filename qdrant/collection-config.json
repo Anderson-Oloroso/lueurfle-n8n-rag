@@ -1,0 +1,29 @@
+{
+  "collectionName": "lueurfle_french_3072",
+  "vectors": {
+    "size": 3072,
+    "distance": "Cosine"
+  },
+  "hnsw_config": {
+    "m": 16,
+    "ef_construct": 100
+  },
+  "payloadIndexes": [
+    {
+      "field_name": "level",
+      "field_schema": "keyword"
+    },
+    {
+      "field_name": "topic",
+      "field_schema": "keyword"
+    },
+    {
+      "field_name": "source",
+      "field_schema": "keyword"
+    },
+    {
+      "field_name": "keywords",
+      "field_schema": "keyword"
+    }
+  ]
+}

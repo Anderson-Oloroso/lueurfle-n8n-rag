@@ -1,0 +1,25 @@
+{
+  "name": "lueurfle-n8n-rag",
+  "version": "1.0.0",
+  "description": "Orquestación RAG en n8n + Qdrant + Google Gemini Embeddings para el tutor de francés Lueur",
+  "type": "module",
+  "main": "scripts/create-collection.js",
+  "scripts": {
+    "setup:qdrant": "node --env-file-if-exists=.env scripts/create-collection.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "lueurfle",
+    "n8n",
+    "qdrant",
+    "gemini",
+    "rag",
+    "french",
+    "ocean"
+  ],
+  "author": "Henrik Anderson Oloroso Garcia (Anderson-Oloroso)",
+  "license": "MIT",
+  "dependencies": {
+    "@qdrant/js-client-rest": "^1.20.0"
+  }
+}
