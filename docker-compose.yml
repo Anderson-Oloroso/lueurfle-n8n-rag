@@ -1,0 +1,78 @@
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: lueurfle-n8n
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - N8N_HOST=${NGROK_DOMAIN:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - N8N_SECURE_COOKIE=${N8N_SECURE_COOKIE:-false}
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      - N8N_EDITOR_BASE_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-America/Guatemala}
+      - NODE_FUNCTION_ALLOW_EXTERNAL=*
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows:/opt/lueurfle/workflows:ro
+    networks:
+      - lueurfle-n8n-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5678/healthz || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: lueurfle-qdrant
+    profiles:
+      - local-qdrant
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - lueurfle-n8n-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:6333/readyz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: lueurfle-ngrok
+    profiles:
+      - tunnel
+    env_file:
+      - path: .env
+        required: false
+    command:
+      - "http"
+      - "--url=${NGROK_DOMAIN:-localhost}"
+      - "n8n:5678"
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
+    depends_on:
+      n8n:
+        condition: service_healthy
+    networks:
+      - lueurfle-n8n-net
+    restart: unless-stopped
+
+volumes:
+  n8n_data:
+  qdrant_data:
+
+networks:
+  lueurfle-n8n-net:
+    driver: bridge
